@@ -2,9 +2,7 @@
 # coding: utf-8
 
 # # Logistic Regression with a Neural Network mindset
-# 
 
-# In[ ]:
 
 
 import numpy as np
@@ -12,93 +10,81 @@ import matplotlib.pyplot as plt
 import h5py #heirarchial data format
 import scipy
 from PIL import Image
-#from scipy import ndimage
 from lr_utils import load_dataset
 
 # 
-# **Problem Statement**: You are given a dataset ("data.h5") containing:
+# **Problem Statement**: 
+#    You are given a dataset ("data.h5") containing:
 #     - a training set of m_train images labeled as cat (y=1) or non-cat (y=0)
 #     - a test set of m_test images labeled as cat or non-cat
 #     - each image is of shape (num_px, num_px, 3) where 3 is for the 3 channels (RGB). Thus, each image is square (height = num_px) and (width = num_px).
 
 
 # Loading the data (cat/non-cat)
-train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
+x_train_set_image, y_train_set_label, x_test_set_image, y_test_set_label, classes = load_dataset()
 
 # Example of a picture
 index = 2
-plt.imshow(train_set_x_orig[index])
-print ("y = " + str(train_set_y[:, index]) + ", it's a '" + 
-       classes[np.squeeze(train_set_y[:, index])].decode("utf-8") +  "' picture.")
+plt.imshow(x_train_set_image[index])
+print ("y = " + str(y_train_set_label[:, index]) + ", it's a '" + 
+       classes[np.squeeze(y_train_set_label[:, index])].decode("utf-8") +  "' picture.")
 
-m_train = train_set_x_orig.shape[0]
-m_test = test_set_x_orig.shape[0]
-num_px = train_set_x_orig.shape[1]
-
+m_train = x_train_set_image.shape[0]
+m_test = x_test_set_image.shape[0]
+num_px = x_train_set_image.shape[1]
 
 
 print ("Number of training examples: m_train = " + str(m_train))
 print ("Number of testing examples: m_test = " + str(m_test))
 print ("Height/Width of each image: num_px = " + str(num_px))
 print ("Each image is of size: (" + str(num_px) + ", " + str(num_px) + ", 3)")
-print ("train_set_x shape: " + str(train_set_x_orig.shape))
-print ("train_set_y shape: " + str(train_set_y.shape))
-print ("test_set_x shape: " + str(test_set_x_orig.shape))
-print ("test_set_y shape: " + str(test_set_y.shape))
+print ("train_set_x shape: " + str(x_train_set_image.shape))
+print ("y_train_set_label shape: " + str(y_train_set_label.shape))
+print ("test_set_x shape: " + str(x_test_set_image.shape))
+print ("y_test_set_label shape: " + str(y_test_set_label.shape))
 
-# In[ ]:
 
 
 # Reshape the training and test examples
 
-train_set_x_flatten = train_set_x_orig.reshape(train_set_x_orig.shape[0],-1).T
-test_set_x_flatten = test_set_x_orig.reshape(test_set_x_orig.shape[0],-1).T
+x_train_set_image_flatten = x_train_set_image.reshape(x_train_set_image.shape[0],-1).T
+x_test_set_image_flatten = x_test_set_image.reshape(x_test_set_image.shape[0],-1).T
 
-print ("train_set_x_flatten shape: " + str(train_set_x_flatten.shape))
-print ("train_set_y shape: " + str(train_set_y.shape))
-print ("test_set_x_flatten shape: " + str(test_set_x_flatten.shape))
-print ("test_set_y shape: " + str(test_set_y.shape))
-print ("sanity check after reshaping: " + str(train_set_x_flatten[0:5,0]))
+print ("x_train_set_image_flatten shape: " + str(x_train_set_image_flatten.shape))
+print ("y_train_set_label shape: " + str(y_train_set_label.shape))
+print ("x_test_set_image_flatten shape: " + str(x_test_set_image_flatten.shape))
+print ("y_test_set_label shape: " + str(y_test_set_label.shape))
+print ("sanity check after reshaping: " + str(x_train_set_image_flatten[0:5,0]))
 
 
 #%% 
 # Normalize dataset
-train_set_x = train_set_x_flatten/255.
-test_set_x = test_set_x_flatten/255.
+train_set_x = x_train_set_image_flatten/255.
+test_set_x = x_test_set_image_flatten/255.
 
 
 
 # ## 4 - Building the parts of our algorithm ## 
-# 
-# The main steps for building a Neural Network are:
 # 1. Define the model structure (such as number of input features) 
 # 2. Initialize the model's parameters
 # 3. Loop:
 #     - Calculate current loss (forward propagation)
 #     - Calculate current gradient (backward propagation)
 #     - Update parameters (gradient descent)
-# 
 
 #%%
 def sigmoid(z):
     """
-    Compute the sigmoid of z
-
     Arguments:
     z -- A scalar or numpy array of any size.
-
     Return:
     s -- sigmoid(z)
     """
     s = 1/(1+np.exp(-z))    
     return s
 
-print ("sigmoid([0, 2]) = " + str(sigmoid(np.array([0,2]))))
-
 def initialize_with_zeros(dim):
     """
-    This function creates a vector of zeros of shape (dim, 1) for w and initializes b to 0.
-    
     Argument:
     dim -- size of the w vector we want (or number of parameters in this case)
     
@@ -106,21 +92,10 @@ def initialize_with_zeros(dim):
     w -- initialized vector of shape (dim, 1)
     b -- initialized scalar (corresponds to the bias)
     """
-    
-    ### START CODE HERE ### (≈ 1 line of code)
     w = np.zeros([dim,1])
     b = 0
-    ### END CODE HERE ###
-
-    assert(w.shape == (dim, 1))
-    assert(isinstance(b, float) or isinstance(b, int))
     
     return w, b
-
-dim = 2
-w, b = initialize_with_zeros(dim)
-print ("w = " + str(w))
-print ("b = " + str(b))
 
 #%%
 # Forward propagation
@@ -160,13 +135,6 @@ def propagate(w, b, X, Y):
     
     return grads, cost
 
-
-
-w, b, X, Y = np.array([[1.],[2.]]), 2., np.array([[1.,2.,-1.],[3.,4.,-3.2]]), np.array([[1,0,1]])
-grads, cost = propagate(w, b, X, Y)
-print ("dw = " + str(grads["dw"]))
-print ("db = " + str(grads["db"]))
-print ("cost = " + str(cost))
 
 #%%
 # ### 4.4 - Optimization
@@ -258,13 +226,6 @@ def predict(w, b, X):
     
     return Y_prediction
 
-
-w = np.array([[0.1124579],[0.23106775]])
-b = -0.3
-X = np.array([[1.,-1.1,-3.2],[1.2,2.,0.1]])
-print ("predictions = " + str(predict(w, b, X)))
-#%%
-
 #%%
 def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate = 0.5, print_cost = False):
     """
@@ -310,19 +271,16 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
 
 #%%
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+d = model(train_set_x, y_train_set_label, test_set_x, y_test_set_label, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
 #%%
 # Example of a picture that was wrongly classified.
 index = 10
 plt.imshow(test_set_x[:,index].reshape((num_px, num_px, 3)))
-print ("y = " + str(test_set_y[0,index]) + ", you predicted that it is a \"" + 
+print ("y = " + str(y_test_set_label[0,index]) + ", you predicted that it is a \"" + 
        classes[int(d["Y_prediction_test"][0,index])].decode("utf-8") +  "\" picture.")
 
 # Let's also plot the cost function and the gradients.
-
-# In[ ]:
-
 
 # Plot learning curve (with costs)
 costs = np.squeeze(d['costs'])
@@ -338,7 +296,7 @@ learning_rates = [0.01, 0.001, 0.0001]
 models = {}
 for i in learning_rates:
     print ("learning rate is: " + str(i))
-    models[str(i)] = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1500, learning_rate = i, print_cost = False)
+    models[str(i)] = model(train_set_x, y_train_set_label, test_set_x, y_test_set_label, num_iterations = 1500, learning_rate = i, print_cost = False)
     print ('\n' + "-------------------------------------------------------" + '\n')
 
 for i in learning_rates:
@@ -356,9 +314,9 @@ plt.show()
 
 my_image = "cat.jpg"   # change this to the name of your image file 
 
-# We preprocess the image to fit your algorithm.
 fname = "images/" + my_image
 image = np.array(plt.imread(fname))
+# Preprocess Image
 my_image = scipy.misc.imresize(image, size=(num_px,num_px)).reshape((1, num_px*num_px*3)).T
 my_predicted_image = predict(d["w"], d["b"], my_image)
 
