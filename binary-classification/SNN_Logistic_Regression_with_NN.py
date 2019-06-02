@@ -185,15 +185,6 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost = False):
     
     return params, grads, costs
 
-# In[ ]:
-
-
-params, grads, costs = optimize(w, b, X, Y, num_iterations= 100, learning_rate = 0.009, print_cost = False)
-
-print ("w = " + str(params["w"]))
-print ("b = " + str(params["b"]))
-print ("dw = " + str(grads["dw"]))
-print ("db = " + str(grads["db"]))
 
 #%%
 
