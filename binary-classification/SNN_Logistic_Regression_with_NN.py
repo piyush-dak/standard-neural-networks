@@ -8,10 +8,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py #heirarchial data format
-import scipy
+import scipy.misc as misc
 from PIL import Image
 from lr_utils import load_dataset
 
+
+#%%
 # 
 # **Problem Statement**: 
 #    You are given a dataset ("data.h5") containing:
@@ -308,7 +310,7 @@ my_image = "cat.jpg"   # change this to the name of your image file
 fname = "images/" + my_image
 image = np.array(plt.imread(fname))
 # Preprocess Image
-my_image = scipy.misc.imresize(image, size=(num_px,num_px)).reshape((1, num_px*num_px*3)).T
+my_image = misc.imresize(image, size=(num_px,num_px)).reshape((1, num_px*num_px*3)).T
 my_predicted_image = predict(d["w"], d["b"], my_image)
 
 plt.imshow(image)
